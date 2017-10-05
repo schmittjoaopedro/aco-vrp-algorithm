@@ -24,10 +24,13 @@ public class Visualizer extends JFrame {
 
     private ArrayList<ViewNode> nodes;
     private ArrayList<ViewEdge> edges;
+    private ArrayList<ViewEdge> route;
 
     private Graph graph;
-    
+
     private JLabel stats;
+
+    private int[] bestRoute;
 
     public Visualizer(Graph graph) {
         super();
@@ -46,6 +49,7 @@ public class Visualizer extends JFrame {
         }
         nodes = new ArrayList<ViewNode>();
         edges = new ArrayList<ViewEdge>();
+        route = new ArrayList<ViewEdge>();
 
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
@@ -58,7 +62,7 @@ public class Visualizer extends JFrame {
                 scaleH = viewHeight / Math.abs(graph.getUpperY() - graph.getLowerY());
                 scaleW *= .9;
                 scaleH *= .9;
-                draw(null);
+                draw(bestRoute);
             }
         });
 
@@ -68,13 +72,14 @@ public class Visualizer extends JFrame {
         height = 1;
         scaleW = viewWidth / Math.abs(graph.getUpperX() - graph.getLowerX());
         scaleH = viewHeight / Math.abs(graph.getUpperY() - graph.getLowerY());
-        scaleW *= .9;
-        scaleH *= .9;
+        scaleW *= .7;
+        scaleH *= .7;
     }
 
     public void draw(int[] tour) {
         this.nodes.clear();
         this.edges.clear();
+        this.route.clear();
         for (Node node : graph.getNodes()) {
             int x = (int) (scaleW * (node.getX() - graph.getLowerX()));
             int y = (int) (scaleH * (graph.getUpperY() - node.getY()));
@@ -83,9 +88,12 @@ public class Visualizer extends JFrame {
                 this.addEdge(node.getId(), edges.getTo().getId());
             }
         }
-//        for(int i = 0; i < tour.length - 1; i++) {
-//            this.addEdge(tour[i], tour[i + 1]);
-//        }
+        if(tour != null) {
+            bestRoute = tour;
+            for (int i = 0; i < tour.length - 1; i++) {
+                this.addRoute(tour[i], tour[i + 1]);
+            }
+        }
         this.repaint();
     }
 
@@ -123,16 +131,29 @@ public class Visualizer extends JFrame {
         edges.add(new ViewEdge(i, j));
     }
 
+    // Add an ViewEdge between nodes i and j
+    public void addRoute(int i, int j) {
+        route.add(new ViewEdge(i, j));
+    }
+
     // Clear and repaint the nodes and edges
     public void paint(Graphics g) {
         super.paint(g);
+        Graphics2D g2 = (Graphics2D) g;
         if (edges != null) {
             FontMetrics f = g.getFontMetrics();
             int nodeHeight = Math.max(height, f.getHeight());
             g.setColor(Color.black);
             for (ViewEdge e : edges) {
+                g2.setStroke(new BasicStroke(1));
                 g.drawLine(nodes.get(e.i).x, nodes.get(e.i).y, nodes.get(e.j).x, nodes.get(e.j).y);
             }
+            g.setColor(Color.red);
+            for (ViewEdge e : route) {
+                g2.setStroke(new BasicStroke(3));
+                g.drawLine(nodes.get(e.i).x, nodes.get(e.i).y, nodes.get(e.j).x, nodes.get(e.j).y);
+            }
+            g.setColor(Color.black);
             for (ViewNode n : nodes) {
                 g.drawOval(n.x - 1, n.y - 1, 2, 2);
             }

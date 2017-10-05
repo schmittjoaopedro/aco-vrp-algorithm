@@ -48,4 +48,8 @@ public class Node {
         return this.edges;
     }
 
+    @Override
+    public String toString() {
+        return this.getId() + " = " + this.getY() + "," + this.getX();
+    }
 }

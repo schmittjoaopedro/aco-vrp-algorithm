@@ -1,9 +1,13 @@
 package schmitt.mmas;
 
 import org.junit.Test;
+import schmitt.mmas.aco.Ant;
 import schmitt.mmas.graph.Graph;
+import schmitt.mmas.graph.Node;
 import schmitt.mmas.reader.JSONConverter;
 import schmitt.mmas.view.Visualizer;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -71,6 +75,82 @@ public class TestGraphTools {
         Visualizer visualizer = new Visualizer(graph);
         visualizer.draw(null);
 
+        while(true) {
+            Thread.sleep(100);
+        }
+    }
+
+    @Test
+    public void testSimpleHeuristic() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
+        Graph graph = JSONConverter.readGraph(jsonFile);
+
+        Visualizer visualizer = new Visualizer(graph);
+        visualizer.draw(null);
+        Thread.sleep(2000);
+
+        Ant ant = new Ant(graph);
+        List<Integer> bestRoute = ant.findBestRoute(171, 43);
+        System.out.println(bestRoute.size());
+
+        int bestRouteInt[] = new int[bestRoute.size()];
+        for(int i = 0; i < bestRoute.size(); i++) {
+            bestRouteInt[i] = bestRoute.get(i);
+            Node node = graph.getNode(bestRouteInt[i]);
+            System.out.println("drawCircle(" + node.getY() + "," + node.getX() + ",0.0001,'#FA002A')");
+        }
+        visualizer.draw(bestRouteInt);
+
+        while(true) {
+            Thread.sleep(100);
+        }
+    }
+
+    @Test
+    public void testSimpleHeuristicJoinville() throws Exception {
+
+        Graph graph = new Graph();
+        graph.addNode(0, -8, -0);
+        graph.addNode(1, -6, -1);
+        graph.addNode(2, -3, -1);
+        graph.addNode(3, -4, -3);
+        graph.addNode(4, -1, -2);
+        graph.addNode(5, -1, -3);
+        graph.addNode(6, -1, -5);
+        graph.addNode(7, -6, -5);
+        graph.addNode(8, -3, -4);
+
+        graph.addEdge(1, 0, 4.0);
+        graph.addEdge(1, 2, 7.0);
+        graph.addEdge(1, 3, 6.0);
+        graph.addEdge(1, 7, 9.5);
+        graph.addEdge(2, 1, 7.0);
+        graph.addEdge(2, 4, 5.0);
+        graph.addEdge(3, 2, 5.0);
+        graph.addEdge(3, 4, 8.0);
+        graph.addEdge(3, 7, 7.0);
+        graph.addEdge(4, 5, 3.0);
+        graph.addEdge(5, 2, 7.0);
+        graph.addEdge(5, 6, 5.0);
+        graph.addEdge(5, 7, 13.0);
+        graph.addEdge(5, 8, 6.0);
+        graph.addEdge(6, 7, 12.0);
+        graph.addEdge(8, 3, 4.0);
+        graph.addEdge(8, 6, 6.0);
+
+        Visualizer visualizer = new Visualizer(graph);
+        visualizer.draw(null);
+
+        Ant ant = new Ant(graph);
+        List<Integer> bestRoute = ant.findBestRoute(1, 6);
+        System.out.println(bestRoute.size());
+
+        int bestRouteInt[] = new int[bestRoute.size()];
+        for(int i = 0; i < bestRoute.size(); i++) {
+            bestRouteInt[i] = bestRoute.get(i);
+        }
+        visualizer.draw(bestRouteInt);
         while(true) {
             Thread.sleep(100);
         }
