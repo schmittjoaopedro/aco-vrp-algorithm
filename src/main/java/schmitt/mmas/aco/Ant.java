@@ -1,105 +1,95 @@
 package schmitt.mmas.aco;
 
 import schmitt.mmas.graph.Edge;
-import schmitt.mmas.graph.Graph;
 import schmitt.mmas.graph.Node;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
 public class Ant {
 
-    private Graph graph;
+    private Globals _globals;
 
-    private Set<Integer> visited;
+    private Stack<Node> route;
 
-    private Stack<Integer> bestRoute;
+    private Set<Node> visited;
 
-    public Ant(Graph graph) {
-        this.graph = graph;
-        this.visited = new HashSet<Integer>();
+    private double cost;
+
+    public Ant(Globals globals) {
+        _globals = globals;
+        route = new Stack<>();
+        visited = new HashSet<>();
+        cost = Double.MAX_VALUE;
     }
 
-    public List<Integer> findBestRoute(int from, int to) {
-        bestRoute = new Stack<Integer>();
-        int current = from;
-        bestRoute.push(current);
+    public void nnTour() {
+        visited = new HashSet<>();
+        route = new Stack<>();
+        cost = Double.MAX_VALUE;
+        Node current = _globals.sourceNode;
+        route.add(current);
         visited.add(current);
-        while(current != to) {
-            Node nextNode = getProportionalNextNode(current, to);
+        while (current != _globals.targetNode) {
+            Node nextNode = selectNextNearNode(current);
             if(nextNode == null) {
-                bestRoute.pop();
-                current = bestRoute.peek();
+                route.pop();
+                current = route.peek();
             } else {
-                bestRoute.push(nextNode.getId());
-                visited.add(nextNode.getId());
-                if(nextNode.getId() == to) {
+                route.push(nextNode);
+                visited.add(nextNode);
+                if(nextNode == _globals.targetNode) {
                     break;
                 } else {
-                    current = nextNode.getId();
+                    current = nextNode;
                 }
             }
         }
-        return bestRoute;
+        calculateCost();
     }
 
-    private Node getProportionalNextNode(int current, int to) {
-        Node currentNode = graph.getNode(current);
-        if(currentNode.getEdges().size() == 0) return null;
-        Edge[] edges = currentNode.getEdges().toArray(new Edge[] {});
-        double[] probs = new double[edges.length];
-        double cumSum = 0.0;
-        for(int i = 0; i < edges.length; i++) {
-            if(edges[i].getTo().getId() == to) return edges[i].getTo();
-            if(visited.contains(edges[i].getTo().getId())) {
-                probs[i] = 0.0;
-            } else {
-                probs[i] = heuristic(current, edges[i].getTo().getId(), to);
-                cumSum += probs[i];
+    private Node selectNextNearNode(Node currentNode) {
+        if(currentNode.getEdges().isEmpty()) return null;
+        double maxGain = 0.0;
+        Node nextNode = null;
+        for(Edge edge : currentNode.getEdges()) {
+            if(!visited.contains(edge.getTo()) && _globals.HEURISTIC(edge) >= maxGain) {
+                nextNode = edge.getTo();
+                maxGain = _globals.HEURISTIC(edge);
             }
         }
-        if(cumSum <= 0) return null;
-        double rand = Math.random() * cumSum;
-        int j = 0;
-        double probability = probs[j];
-        while(probability <= rand) {
-            j++;
-            probability += probs[j];
-        }
-        if(j == edges.length) {
-            return null;
-        } else {
-            return edges[j].getTo();
+        return nextNode;
+    }
+
+    public void calculateCost() {
+        cost = 0.0;
+        for(int i = 0; i < route.size() - 1; i++) {
+            cost += _globals.calculateDistanceInMeters(route.get(i), route.get(i + 1));
         }
     }
 
-    private double heuristic(int current, int from, int to) {
-        Node fromNode = graph.getNode(from);
-        Node toNode = graph.getNode(to);
-        Node currentNode = graph.getNode(current);
-        //double dist = Math.sqrt(Math.pow(fromNode.getX() - toNode.getX(), 2) + Math.pow(fromNode.getY() - toNode.getY(), 2));
-        double distFrom = getLatToMeter(fromNode.getX(), fromNode.getY(), toNode.getX(), toNode.getY());
-        double distCurrent = getLatToMeter(currentNode.getX(), currentNode.getY(), toNode.getX(), toNode.getY());
-        double dist = 1.0 / (distFrom / distCurrent);
-        return dist;
+    public Stack<Node> getRoute() {
+        return route;
     }
 
-    private double getLatToMeter(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6371000; //meters
-        double dLat = Math.toRadians(lat2-lat1);
-        double dLng = Math.toRadians(lng2-lng1);
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng/2) * Math.sin(dLng/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        float dist = (float) (earthRadius * c);
-        return dist;
+    public void setRoute(Stack<Node> route) {
+        this.route = route;
+    }
+
+    public Set<Node> getVisited() {
+        return visited;
+    }
+
+    public void setVisited(Set<Node> visited) {
+        this.visited = visited;
     }
 
     public double getCost() {
-        double total = 0.0;
-        for(int i = 0; i < bestRoute.size() - 1; i++) {
-            Node fromNode = graph.getNode(bestRoute.get(i));
-            Node toNode = graph.getNode(bestRoute.get(i + 1));
-            total += getLatToMeter(fromNode.getX(), fromNode.getY(), toNode.getX(), toNode.getY());
-        }
-        return total;
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 }

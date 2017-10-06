@@ -2,6 +2,9 @@ package schmitt.mmas;
 
 import org.junit.Test;
 import schmitt.mmas.aco.Ant;
+import schmitt.mmas.aco.Globals;
+import schmitt.mmas.aco.VRPSolver;
+import schmitt.mmas.graph.Edge;
 import schmitt.mmas.graph.Graph;
 import schmitt.mmas.graph.Node;
 import schmitt.mmas.reader.JSONConverter;
@@ -90,20 +93,25 @@ public class TestGraphTools {
         visualizer.draw(null);
         Thread.sleep(2000);
 
-        Ant ant = new Ant(graph);
-        List<Integer> bestRoute = ant.findBestRoute(171, 43);
-        System.out.println(bestRoute.size());
+        //43->171
+        //103->1980
+        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(1980), graph.getNode(103));
+        vrpSolver.solve();
 
-        int bestRouteInt[] = new int[bestRoute.size()];
-        for(int i = 0; i < bestRoute.size(); i++) {
-            bestRouteInt[i] = bestRoute.get(i);
-            Node node = graph.getNode(bestRouteInt[i]);
-            System.out.println("drawCircle(" + node.getY() + "," + node.getX() + ",0.0001,'#FA002A')");
+        Globals globals = new Globals();
+        globals.graph = graph;
+        globals.sourceNode = graph.getNode(1980);
+        globals.targetNode = graph.getNode(103);
+        Ant ant = new Ant(globals);
+        ant.nnTour();
+        int[] route = new int[ant.getRoute().size()];
+        for(int i = 0; i < route.length; i++) {
+            route[i] = ant.getRoute().get(i).getId();
         }
-        visualizer.draw(bestRouteInt);
-
+        visualizer.draw(route);
+        visualizer.setStat("Cost = " + ant.getCost());
         while(true) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 
@@ -141,18 +149,25 @@ public class TestGraphTools {
 
         Visualizer visualizer = new Visualizer(graph);
         visualizer.draw(null);
+        Thread.sleep(1000);
 
-        Ant ant = new Ant(graph);
-        List<Integer> bestRoute = ant.findBestRoute(1, 6);
-        System.out.println(bestRoute.size());
+        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(1), graph.getNode(6));
+        vrpSolver.solve();
 
-        int bestRouteInt[] = new int[bestRoute.size()];
-        for(int i = 0; i < bestRoute.size(); i++) {
-            bestRouteInt[i] = bestRoute.get(i);
+        Globals globals = new Globals();
+        globals.graph = graph;
+        globals.sourceNode = graph.getNode(1);
+        globals.targetNode = graph.getNode(6);
+        Ant ant = new Ant(globals);
+        ant.nnTour();
+        int[] route = new int[ant.getRoute().size()];
+        for(int i = 0; i < route.length; i++) {
+            route[i] = ant.getRoute().get(i).getId();
         }
-        visualizer.draw(bestRouteInt);
+        visualizer.draw(route);
+
         while(true) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 

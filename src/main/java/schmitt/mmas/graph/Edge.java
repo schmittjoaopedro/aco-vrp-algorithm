@@ -8,6 +8,10 @@ public class Edge {
 
     private double distance;
 
+    private double pheromone;
+
+    private double total;
+
     public Edge() {
         super();
     }
@@ -34,5 +38,21 @@ public class Edge {
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public double getPheromone() {
+        return pheromone;
+    }
+
+    public void setPheromone(double pheromone) {
+        this.pheromone = pheromone;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
     }
 }

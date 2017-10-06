@@ -74,6 +74,10 @@ public class Graph {
         return null;
     }
 
+    public Set<Edge> getEdges() {
+        return edges;
+    }
+
     public int getNodesLength() {
         return nodes.size();
     }
