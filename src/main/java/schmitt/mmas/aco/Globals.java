@@ -23,15 +23,15 @@ public class Globals {
 
     public double rho;
 
-    public double maxTries;
+    public double branchFactor;
 
     public double maxTime; // In seconds
 
-    public double branchFactor;
+    public double maxIterations;
 
     public int iteration;
 
-    public int restartIteration;
+    public int restartFoundBestIteration;
 
     public int foundBestIteration;
 
@@ -47,19 +47,22 @@ public class Globals {
 
     public Ant restartBestAnt;
 
+    public int uGb;
+
     public Globals() {
         timer = new Timer();
         numberAnts = 30;
         alpha = 1.0;
         beta = 2.0;
         rho = 0.02;
-        maxTries = 100.0;
+        maxIterations = 100.0;
         maxTime = 10.0;
         branchFactor = 1.00001;
         lambda = 0.05;
         iteration = 0;
-        restartIteration = 0;
+        restartFoundBestIteration = 0;
         foundBestIteration = 0;
+        uGb = 25;
     }
 
     public double HEURISTIC(Edge edge) {

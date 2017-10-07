@@ -84,7 +84,7 @@ public class TestGraphTools {
     }
 
     @Test
-    public void testSimpleHeuristic() throws Exception {
+    public void testSimpleHeuristicJoinville() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
         Graph graph = JSONConverter.readGraph(jsonFile);
@@ -116,7 +116,7 @@ public class TestGraphTools {
     }
 
     @Test
-    public void testSimpleHeuristicJoinville() throws Exception {
+    public void testSimpleHeuristicGraph() throws Exception {
 
         Graph graph = new Graph();
         graph.addNode(0, -8, -0);
