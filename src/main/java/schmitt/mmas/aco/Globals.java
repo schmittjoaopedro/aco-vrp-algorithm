@@ -55,8 +55,8 @@ public class Globals {
         alpha = 1.0;
         beta = 2.0;
         rho = 0.02;
-        maxIterations = 100.0;
-        maxTime = 10.0;
+        maxIterations = 5000.0;
+        maxTime = 60.0;
         branchFactor = 1.00001;
         lambda = 0.05;
         iteration = 0;
@@ -78,7 +78,7 @@ public class Globals {
         double dX = Math.toRadians(from.getX() - to.getX());
         double a = Math.sin(dY / 2.0) * Math.sin(dY / 2.0) + Math.cos(Math.toRadians(from.getY())) * Math.cos(Math.toRadians(to.getY())) * Math.sin(dX / 2.0) * Math.sin(dX / 2.0);
         double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
-        return earthRadius * c;
+        return earthRadius * c + 1.0;
     }
 
 }

@@ -55,4 +55,9 @@ public class Edge {
     public void setTotal(double total) {
         this.total = total;
     }
+
+    @Override
+    public String toString() {
+        return from.getId() + "->" + to.getId() + " = " + getTotal();
+    }
 }

@@ -93,7 +93,7 @@ public class Ant {
         double[] probabilities = new double[currentNode.getEdges().size()];
         double cumulativeSum = 0.0;
         for(int i = 0; i < edges.length; i++) {
-            if(visited.contains(edges[i])) {
+            if(visited.contains(edges[i].getTo())) {
                 probabilities[i] = 0.0;
             } else {
                 probabilities[i] = edges[i].getTotal();

@@ -4,15 +4,11 @@ import org.junit.Test;
 import schmitt.mmas.aco.Ant;
 import schmitt.mmas.aco.Globals;
 import schmitt.mmas.aco.VRPSolver;
-import schmitt.mmas.graph.Edge;
 import schmitt.mmas.graph.Graph;
-import schmitt.mmas.graph.Node;
 import schmitt.mmas.reader.JSONConverter;
 import schmitt.mmas.view.Visualizer;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGraphTools {
 
@@ -85,6 +81,12 @@ public class TestGraphTools {
 
     @Test
     public void testSimpleHeuristicJoinville() throws Exception {
+        //43->171
+        //103->1980
+        //553->1201
+        int fromId = 1201;
+        int toId = 553;
+
         ClassLoader classLoader = getClass().getClassLoader();
         String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
         Graph graph = JSONConverter.readGraph(jsonFile);
@@ -93,16 +95,12 @@ public class TestGraphTools {
         visualizer.draw(null);
         Thread.sleep(2000);
 
-        //43->171
-        //103->1980
-        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(1980), graph.getNode(103));
-        vrpSolver.solve();
-
-        Globals globals = new Globals();
-        globals.graph = graph;
-        globals.sourceNode = graph.getNode(1980);
-        globals.targetNode = graph.getNode(103);
-        Ant ant = new Ant(globals);
+        //NN Heuristic route
+        Globals global = new Globals();
+        global.graph = graph;
+        global.sourceNode = graph.getNode(fromId);
+        global.targetNode = graph.getNode(toId);
+        Ant ant = new Ant(global);
         ant.nnTour();
         int[] route = new int[ant.getRoute().size()];
         for(int i = 0; i < route.length; i++) {
@@ -110,6 +108,14 @@ public class TestGraphTools {
         }
         visualizer.draw(route);
         visualizer.setStat("Cost = " + ant.getCost());
+        Thread.sleep(2000);
+
+        //Ant Heuristic
+        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
+        vrpSolver.solve();
+        visualizer.draw(vrpSolver.getResultRoute());
+        visualizer.setStat("Cost = " + vrpSolver.getResultCost());
+
         while(true) {
             Thread.sleep(1000);
         }
@@ -154,17 +160,8 @@ public class TestGraphTools {
         VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(1), graph.getNode(6));
         vrpSolver.solve();
 
-        Globals globals = new Globals();
-        globals.graph = graph;
-        globals.sourceNode = graph.getNode(1);
-        globals.targetNode = graph.getNode(6);
-        Ant ant = new Ant(globals);
-        ant.nnTour();
-        int[] route = new int[ant.getRoute().size()];
-        for(int i = 0; i < route.length; i++) {
-            route[i] = ant.getRoute().get(i).getId();
-        }
-        visualizer.draw(route);
+        visualizer.draw(vrpSolver.getResultRoute());
+        visualizer.setStat("Cost = " + vrpSolver.getResultCost());
 
         while(true) {
             Thread.sleep(1000);
