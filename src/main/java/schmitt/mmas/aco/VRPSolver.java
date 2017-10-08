@@ -11,11 +11,14 @@ public class VRPSolver {
 
     private Globals _globals;
 
+    private Statistics statistics;
+
     public VRPSolver(Graph graph, Node sourceNode, Node targetNode) {
         _globals = new Globals();
         _globals.graph = graph;
         _globals.sourceNode = sourceNode;
         _globals.targetNode = targetNode;
+        statistics = new Statistics(_globals);
     }
 
     public void solve() {
@@ -31,8 +34,9 @@ public class VRPSolver {
             constructSolutions();
             updateStatistics();
             pheromoneTrailUpdate();
-            searchControlAndStatistics();
+            searchControl();
             _globals.iteration++;
+            statistics.calculateStatistics();
         }
 
         System.out.println("Finished!");
@@ -99,7 +103,7 @@ public class VRPSolver {
             _globals.restartFoundBestIteration = _globals.iteration;
             _globals.trailMax = 1.0 / (_globals.rho * _globals.bestSoFar.getCost());
             _globals.trailMin = _globals.trailMax / (2.0 * _globals.graph.getNodes().size());
-            System.out.println("Best found = " + _globals.bestSoFar.getCost() + " at iteration " + _globals.iteration);
+            //System.out.println("Best found = " + _globals.bestSoFar.getCost() + " at iteration " + _globals.iteration);
         }
         if(iterationBestAnt.getCost() < _globals.restartBestAnt.getCost()) {
             _globals.restartBestAnt = iterationBestAnt.clone();
@@ -156,12 +160,12 @@ public class VRPSolver {
         }
     }
 
-    private void searchControlAndStatistics() {
+    private void searchControl() {
         if(_globals.iteration % 100 == 0) {
             double branchFactor = calculateBranchingFactor();
-            System.out.println("Branch factor = " + branchFactor + " at iteration " + _globals.iteration);
+            //System.out.println("Branch factor = " + branchFactor + " at iteration " + _globals.iteration);
             if(branchFactor < _globals.branchFactor && (_globals.iteration - _globals.restartFoundBestIteration) > 250) {
-                System.out.println("Restarting System!");
+                //System.out.println("Restarting System!");
                 _globals.restartBestAnt = new Ant(_globals);
                 initPheromoneTrails(_globals.trailMax);
                 computeTotalInformation();
@@ -211,5 +215,9 @@ public class VRPSolver {
 
     public double getResultCost() {
         return _globals.bestSoFar.getCost();
+    }
+
+    public Statistics getStatistics() {
+        return statistics;
     }
 }

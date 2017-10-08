@@ -55,7 +55,7 @@ public class Globals {
         alpha = 1.0;
         beta = 2.0;
         rho = 0.02;
-        maxIterations = 5000.0;
+        maxIterations = 1000.0;
         maxTime = 60.0;
         branchFactor = 1.00001;
         lambda = 0.05;

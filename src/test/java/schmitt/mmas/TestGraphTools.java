@@ -3,10 +3,13 @@ package schmitt.mmas;
 import org.junit.Test;
 import schmitt.mmas.aco.Ant;
 import schmitt.mmas.aco.Globals;
+import schmitt.mmas.aco.Statistics;
 import schmitt.mmas.aco.VRPSolver;
 import schmitt.mmas.graph.Graph;
 import schmitt.mmas.reader.JSONConverter;
 import schmitt.mmas.view.Visualizer;
+
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -168,4 +171,70 @@ public class TestGraphTools {
         }
     }
 
+
+    @Test
+    public void testStatisticsHeuristicJoinville() throws Exception {
+        //43->171
+        //103->1980
+        //553->1201
+        int fromId = 1201;
+        int toId = 553;
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
+        Graph graph = JSONConverter.readGraph(jsonFile);
+
+        Map<Integer, Double[]> iterationMean = new TreeMap<>();
+        Map<Integer, Double[]> iterationBest = new TreeMap<>();
+        Map<Integer, Double[]> iterationWorst = new TreeMap<>();
+        Map<Integer, Double[]> iterationBestSoFar = new TreeMap<>();
+        int trialSize = 30;
+
+        for(int i = 0; i < trialSize; i++) {
+            //Ant Heuristic
+            System.out.println("Trail " + (i + 1));
+            VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
+            vrpSolver.solve();
+
+            Statistics statistics = vrpSolver.getStatistics();
+            for(Integer iteration : statistics.getIterationMean().keySet()) {
+                //Mean
+                if(!iterationMean.containsKey(iteration)) {
+                    iterationMean.put(iteration, new Double[trialSize]);
+                }
+                iterationMean.get(iteration)[i] = statistics.getIterationMean().get(iteration);
+                //Best
+                if(!iterationBest.containsKey(iteration)) {
+                    iterationBest.put(iteration, new Double[trialSize]);
+                }
+                iterationBest.get(iteration)[i] = statistics.getIterationBest().get(iteration);
+                //Worst
+                if(!iterationWorst.containsKey(iteration)) {
+                    iterationWorst.put(iteration, new Double[trialSize]);
+                }
+                iterationWorst.get(iteration)[i] = statistics.getIterationWorst().get(iteration);
+                //Best so far
+                if(!iterationBestSoFar.containsKey(iteration)) {
+                    iterationBestSoFar.put(iteration, new Double[trialSize]);
+                }
+                iterationBestSoFar.get(iteration)[i] = statistics.getIterationBestSoFar().get(iteration);
+            }
+        }
+
+        for(Integer iteration : iterationMean.keySet()) {
+            String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
+                    iteration, (int) mean(iterationMean.get(iteration)), (int) mean(iterationBest.get(iteration)),
+                    (int) mean(iterationWorst.get(iteration)), (int) mean(iterationBestSoFar.get(iteration)));
+            System.out.println(msg);
+        }
+    }
+
+    private double mean(Double[] values) {
+        if(values.length == 0) return 0;
+        double sum = values[0];
+        for(int i = 1; i < values.length; i++) {
+            sum += values[i];
+        }
+        return sum / values.length;
+    }
 }
