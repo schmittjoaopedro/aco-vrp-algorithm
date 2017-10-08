@@ -1,5 +1,7 @@
 package schmitt.mmas.view;
 
+import schmitt.mmas.aco.Ant;
+import schmitt.mmas.aco.VRPListener;
 import schmitt.mmas.graph.Edge;
 import schmitt.mmas.graph.Graph;
 import schmitt.mmas.graph.Node;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Thanks: http://www1.cs.columbia.edu/~bert/courses/3137/hw3_files/GraphDraw.java
  */
-public class Visualizer extends JFrame {
+public class Visualizer extends JFrame implements VRPListener {
 
     private int viewWidth;
     private int viewHeight;
@@ -41,7 +43,8 @@ public class Visualizer extends JFrame {
         this.pack();
         this.setLocationRelativeTo(null);
         this.add(stats, BorderLayout.SOUTH);
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        this.setSize(800, 600);
+        //this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.setVisible(true);
         try {
             Thread.sleep(1000);
@@ -72,8 +75,8 @@ public class Visualizer extends JFrame {
         height = 1;
         scaleW = viewWidth / Math.abs(graph.getUpperX() - graph.getLowerX());
         scaleH = viewHeight / Math.abs(graph.getUpperY() - graph.getLowerY());
-        scaleW *= .7;
-        scaleH *= .7;
+        scaleW *= .9;
+        scaleH *= .9;
     }
 
     public void draw(int[] tour) {
@@ -157,6 +160,17 @@ public class Visualizer extends JFrame {
             for (ViewNode n : nodes) {
                 g.drawOval(n.x - 1, n.y - 1, 2, 2);
             }
+        }
+    }
+
+    @Override
+    public void onBestRouteFound(int[] route, double cost) {
+        this.draw(route);
+        this.setStat("Cost = " + cost);
+        try {
+            Thread.sleep(500);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

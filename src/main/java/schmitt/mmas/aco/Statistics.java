@@ -1,5 +1,7 @@
 package schmitt.mmas.aco;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,13 +31,24 @@ public class Statistics {
             for (int a = 0; a < _globals.numberAnts; a++) {
                 costs[a] = _globals.ants[a].getCost();
             }
-            //Iteration, Mean, Best, Worst, Best so Far
-            System.out.printf("%05d, %05d, %05d, %05d, %05d,\n",
-                    _globals.iteration, (int) mean(costs), (int) getBest(costs), (int) getWorst(costs), (int) _globals.bestSoFar.getCost());
             iterationMean.put(_globals.iteration, mean((costs)));
             iterationBest.put(_globals.iteration, getBest(costs));
             iterationWorst.put(_globals.iteration, getWorst(costs));
             iterationBestSoFar.put(_globals.iteration, _globals.bestSoFar.getCost());
+            //Iteration, Mean, Best, Worst, Best so Far
+            String message = String.format("%05d, %05d, %05d, %05d, %05d,",
+                    _globals.iteration, (int) mean(costs), (int) getBest(costs), (int) getWorst(costs), (int) _globals.bestSoFar.getCost());
+            System.out.println(message);
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(
+                        "/home/joao/projects/master-degree/mmas-vrp/statistics/" +
+                            _globals.sourceNode.getId() + "->" + _globals.targetNode.getId() + ".txt", true));
+                bw.write(message);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

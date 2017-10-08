@@ -9,6 +9,8 @@ import schmitt.mmas.graph.Graph;
 import schmitt.mmas.reader.JSONConverter;
 import schmitt.mmas.view.Visualizer;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,48 +85,6 @@ public class TestGraphTools {
     }
 
     @Test
-    public void testSimpleHeuristicJoinville() throws Exception {
-        //43->171
-        //103->1980
-        //553->1201
-        int fromId = 1201;
-        int toId = 553;
-
-        ClassLoader classLoader = getClass().getClassLoader();
-        String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
-        Graph graph = JSONConverter.readGraph(jsonFile);
-
-        Visualizer visualizer = new Visualizer(graph);
-        visualizer.draw(null);
-        Thread.sleep(2000);
-
-        //NN Heuristic route
-        Globals global = new Globals();
-        global.graph = graph;
-        global.sourceNode = graph.getNode(fromId);
-        global.targetNode = graph.getNode(toId);
-        Ant ant = new Ant(global);
-        ant.nnTour();
-        int[] route = new int[ant.getRoute().size()];
-        for(int i = 0; i < route.length; i++) {
-            route[i] = ant.getRoute().get(i).getId();
-        }
-        visualizer.draw(route);
-        visualizer.setStat("Cost = " + ant.getCost());
-        Thread.sleep(2000);
-
-        //Ant Heuristic
-        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
-        vrpSolver.solve();
-        visualizer.draw(vrpSolver.getResultRoute());
-        visualizer.setStat("Cost = " + vrpSolver.getResultCost());
-
-        while(true) {
-            Thread.sleep(1000);
-        }
-    }
-
-    @Test
     public void testSimpleHeuristicGraph() throws Exception {
 
         Graph graph = new Graph();
@@ -171,61 +131,130 @@ public class TestGraphTools {
         }
     }
 
-
     @Test
-    public void testStatisticsHeuristicJoinville() throws Exception {
+    public void testSimpleHeuristicJoinville() throws Exception {
+        //553->1201
         //43->171
         //103->1980
-        //553->1201
-        int fromId = 1201;
-        int toId = 553;
+        //155->2336
+        int fromId = 155;
+        int toId = 2336;
 
         ClassLoader classLoader = getClass().getClassLoader();
         String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
         Graph graph = JSONConverter.readGraph(jsonFile);
 
-        Map<Integer, Double[]> iterationMean = new TreeMap<>();
-        Map<Integer, Double[]> iterationBest = new TreeMap<>();
-        Map<Integer, Double[]> iterationWorst = new TreeMap<>();
-        Map<Integer, Double[]> iterationBestSoFar = new TreeMap<>();
-        int trialSize = 30;
+        Visualizer visualizer = new Visualizer(graph);
+        visualizer.draw(null);
+        Thread.sleep(2000);
 
-        for(int i = 0; i < trialSize; i++) {
-            //Ant Heuristic
-            System.out.println("Trail " + (i + 1));
-            VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
-            vrpSolver.solve();
-
-            Statistics statistics = vrpSolver.getStatistics();
-            for(Integer iteration : statistics.getIterationMean().keySet()) {
-                //Mean
-                if(!iterationMean.containsKey(iteration)) {
-                    iterationMean.put(iteration, new Double[trialSize]);
-                }
-                iterationMean.get(iteration)[i] = statistics.getIterationMean().get(iteration);
-                //Best
-                if(!iterationBest.containsKey(iteration)) {
-                    iterationBest.put(iteration, new Double[trialSize]);
-                }
-                iterationBest.get(iteration)[i] = statistics.getIterationBest().get(iteration);
-                //Worst
-                if(!iterationWorst.containsKey(iteration)) {
-                    iterationWorst.put(iteration, new Double[trialSize]);
-                }
-                iterationWorst.get(iteration)[i] = statistics.getIterationWorst().get(iteration);
-                //Best so far
-                if(!iterationBestSoFar.containsKey(iteration)) {
-                    iterationBestSoFar.put(iteration, new Double[trialSize]);
-                }
-                iterationBestSoFar.get(iteration)[i] = statistics.getIterationBestSoFar().get(iteration);
-            }
+        //NN Heuristic route
+        Globals global = new Globals();
+        global.graph = graph;
+        global.sourceNode = graph.getNode(fromId);
+        global.targetNode = graph.getNode(toId);
+        Ant ant = new Ant(global);
+        ant.nnTour();
+        int[] route = new int[ant.getRoute().size()];
+        for(int i = 0; i < route.length; i++) {
+            route[i] = ant.getRoute().get(i).getId();
         }
+        visualizer.draw(route);
+        visualizer.setStat("Cost = " + ant.getCost());
+        Thread.sleep(2000);
 
-        for(Integer iteration : iterationMean.keySet()) {
-            String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
-                    iteration, (int) mean(iterationMean.get(iteration)), (int) mean(iterationBest.get(iteration)),
-                    (int) mean(iterationWorst.get(iteration)), (int) mean(iterationBestSoFar.get(iteration)));
-            System.out.println(msg);
+        //Ant Heuristic
+        VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
+        vrpSolver.setVrpListener(visualizer);
+        vrpSolver.solve();
+
+        while(true) {
+            Thread.sleep(1000);
+        }
+    }
+
+    @Test
+    public void testStatisticsHeuristicJoinville() throws Exception {
+        //553->1201
+        //43->171
+        //103->1980
+        //155->2336
+        int[][] testCases = {
+            {553 , 1201},
+            {1201, 553 },
+            {43  , 171 },
+            {171 , 43  },
+            {103 , 1980},
+            {1980, 103 },
+            {155 , 2336},
+            {2336, 155 }
+        };
+
+        for(int t = 0; t < testCases.length; t++) {
+
+            int fromId = testCases[t][0];
+            int toId = testCases[t][1];
+
+            ClassLoader classLoader = getClass().getClassLoader();
+            String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
+            Graph graph = JSONConverter.readGraph(jsonFile);
+
+            Map<Integer, Double[]> iterationMean = new TreeMap<>();
+            Map<Integer, Double[]> iterationBest = new TreeMap<>();
+            Map<Integer, Double[]> iterationWorst = new TreeMap<>();
+            Map<Integer, Double[]> iterationBestSoFar = new TreeMap<>();
+            int trialSize = 30;
+
+            for (int i = 0; i < trialSize; i++) {
+                //Ant Heuristic
+                System.out.println("Trail " + (i + 1));
+                VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
+                vrpSolver.solve();
+
+                Statistics statistics = vrpSolver.getStatistics();
+                for (Integer iteration : statistics.getIterationMean().keySet()) {
+                    //Mean
+                    if (!iterationMean.containsKey(iteration)) {
+                        iterationMean.put(iteration, new Double[trialSize]);
+                    }
+                    iterationMean.get(iteration)[i] = statistics.getIterationMean().get(iteration);
+                    //Best
+                    if (!iterationBest.containsKey(iteration)) {
+                        iterationBest.put(iteration, new Double[trialSize]);
+                    }
+                    iterationBest.get(iteration)[i] = statistics.getIterationBest().get(iteration);
+                    //Worst
+                    if (!iterationWorst.containsKey(iteration)) {
+                        iterationWorst.put(iteration, new Double[trialSize]);
+                    }
+                    iterationWorst.get(iteration)[i] = statistics.getIterationWorst().get(iteration);
+                    //Best so far
+                    if (!iterationBestSoFar.containsKey(iteration)) {
+                        iterationBestSoFar.put(iteration, new Double[trialSize]);
+                    }
+                    iterationBestSoFar.get(iteration)[i] = statistics.getIterationBestSoFar().get(iteration);
+                }
+            }
+
+            System.out.println("Final result");
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(
+                        "/home/joao/projects/master-degree/mmas-vrp/statistics/" + fromId + "->" + toId + ".txt", true));
+                for (Integer iteration : iterationMean.keySet()) {
+                    String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
+                            iteration,
+                            (int) mean(iterationMean.get(iteration)),
+                            (int) mean(iterationBest.get(iteration)),
+                            (int) mean(iterationWorst.get(iteration)),
+                            (int) mean(iterationBestSoFar.get(iteration)));
+                    System.out.println(msg);
+                    bw.write(msg);
+                    bw.newLine();
+                }
+                bw.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

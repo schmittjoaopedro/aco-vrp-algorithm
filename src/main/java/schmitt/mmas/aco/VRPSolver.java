@@ -13,6 +13,8 @@ public class VRPSolver {
 
     private Statistics statistics;
 
+    private VRPListener vrpListener;
+
     public VRPSolver(Graph graph, Node sourceNode, Node targetNode) {
         _globals = new Globals();
         _globals.graph = graph;
@@ -104,6 +106,9 @@ public class VRPSolver {
             _globals.trailMax = 1.0 / (_globals.rho * _globals.bestSoFar.getCost());
             _globals.trailMin = _globals.trailMax / (2.0 * _globals.graph.getNodes().size());
             //System.out.println("Best found = " + _globals.bestSoFar.getCost() + " at iteration " + _globals.iteration);
+            if(this.vrpListener != null) {
+                this.vrpListener.onBestRouteFound(getResultRoute(), getResultCost());
+            }
         }
         if(iterationBestAnt.getCost() < _globals.restartBestAnt.getCost()) {
             _globals.restartBestAnt = iterationBestAnt.clone();
@@ -219,5 +224,13 @@ public class VRPSolver {
 
     public Statistics getStatistics() {
         return statistics;
+    }
+
+    public VRPListener getVrpListener() {
+        return vrpListener;
+    }
+
+    public void setVrpListener(VRPListener vrpListener) {
+        this.vrpListener = vrpListener;
     }
 }
