@@ -137,8 +137,8 @@ public class TestGraphTools {
         //43->171
         //103->1980
         //155->2336
-        int fromId = 155;
-        int toId = 2336;
+        int fromId = 2336;
+        int toId = 155;
 
         ClassLoader classLoader = getClass().getClassLoader();
         String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
@@ -146,21 +146,6 @@ public class TestGraphTools {
 
         Visualizer visualizer = new Visualizer(graph);
         visualizer.draw(null);
-        Thread.sleep(2000);
-
-        //NN Heuristic route
-        Globals global = new Globals();
-        global.graph = graph;
-        global.sourceNode = graph.getNode(fromId);
-        global.targetNode = graph.getNode(toId);
-        Ant ant = new Ant(global);
-        ant.nnTour();
-        int[] route = new int[ant.getRoute().size()];
-        for(int i = 0; i < route.length; i++) {
-            route[i] = ant.getRoute().get(i).getId();
-        }
-        visualizer.draw(route);
-        visualizer.setStat("Cost = " + ant.getCost());
         Thread.sleep(2000);
 
         //Ant Heuristic
