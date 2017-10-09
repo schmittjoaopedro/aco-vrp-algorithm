@@ -208,6 +208,7 @@ public class TestGraphTools {
             for (int i = 0; i < trialSize; i++) {
                 //Ant Heuristic
                 System.out.println("Trail " + (i + 1));
+                writeInFile(fromId, toId, "Trail " + (i + 1));
                 VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
                 vrpSolver.solve();
 
@@ -237,23 +238,16 @@ public class TestGraphTools {
             }
 
             System.out.println("Final result");
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(
-                        "/home/joao/projects/master-degree/mmas-vrp/statistics/" + fromId + "->" + toId + ".txt", true));
-                for (Integer iteration : iterationMean.keySet()) {
-                    String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
-                            iteration,
-                            (int) mean(iterationMean.get(iteration)),
-                            (int) mean(iterationBest.get(iteration)),
-                            (int) mean(iterationWorst.get(iteration)),
-                            (int) mean(iterationBestSoFar.get(iteration)));
-                    System.out.println(msg);
-                    bw.write(msg);
-                    bw.newLine();
-                }
-                bw.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            writeInFile(fromId, toId, "Final result");
+            for (Integer iteration : iterationMean.keySet()) {
+                String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
+                        iteration,
+                        (int) mean(iterationMean.get(iteration)),
+                        (int) mean(iterationBest.get(iteration)),
+                        (int) mean(iterationWorst.get(iteration)),
+                        (int) mean(iterationBestSoFar.get(iteration)));
+                System.out.println(msg);
+                writeInFile(fromId, toId, msg);
             }
         }
     }
@@ -265,5 +259,17 @@ public class TestGraphTools {
             sum += values[i];
         }
         return sum / values.length;
+    }
+
+    private void writeInFile(int fromId, int toId, String msg) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(
+                    "/home/joao/projects/master-degree/mmas-vrp/statistics/" + fromId + "->" + toId + ".txt", true));
+            bw.write(msg);
+            bw.newLine();
+            bw.flush();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
