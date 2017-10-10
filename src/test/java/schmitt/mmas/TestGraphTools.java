@@ -7,6 +7,7 @@ import schmitt.mmas.aco.Statistics;
 import schmitt.mmas.aco.VRPSolver;
 import schmitt.mmas.graph.Graph;
 import schmitt.mmas.reader.JSONConverter;
+import schmitt.mmas.utils.LogFile;
 import schmitt.mmas.view.Visualizer;
 
 import java.io.BufferedWriter;
@@ -193,7 +194,7 @@ public class TestGraphTools {
             for (int i = 0; i < trialSize; i++) {
                 //Ant Heuristic
                 System.out.println("Trail " + (i + 1));
-                writeInFile(fromId, toId, "Trail " + (i + 1));
+                LogFile.writeInFile(fromId, toId, "Trail " + (i + 1));
                 VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));
                 vrpSolver.solve();
 
@@ -223,7 +224,7 @@ public class TestGraphTools {
             }
 
             System.out.println("Final result");
-            writeInFile(fromId, toId, "Final result");
+            LogFile.writeInFile(fromId, toId, "Final result");
             for (Integer iteration : iterationMean.keySet()) {
                 String msg = String.format("%05d, %05d, %05d, %05d, %05d,",
                         iteration,
@@ -232,7 +233,7 @@ public class TestGraphTools {
                         (int) mean(iterationWorst.get(iteration)),
                         (int) mean(iterationBestSoFar.get(iteration)));
                 System.out.println(msg);
-                writeInFile(fromId, toId, msg);
+                LogFile.writeInFile(fromId, toId, msg);
             }
         }
     }
@@ -246,15 +247,4 @@ public class TestGraphTools {
         return sum / values.length;
     }
 
-    private void writeInFile(int fromId, int toId, String msg) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(
-                    "/home/joao/projects/master-degree/mmas-vrp/statistics/" + fromId + "->" + toId + ".txt", true));
-            bw.write(msg);
-            bw.newLine();
-            bw.flush();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 }

@@ -67,8 +67,7 @@ public class Globals {
 
     public double HEURISTIC(Edge edge) {
         double distToTarget = calculateDistanceInMeters(edge.getTo(), targetNode);
-        double normalizeCost = edge.getDistance() / calculateDistanceInMeters(edge.getFrom(), edge.getTo());
-        double cost = 1.0 / (normalizeCost * distToTarget);
+        double cost = 1.0 / (edge.getDistance() + distToTarget);
         return cost;
     }
 

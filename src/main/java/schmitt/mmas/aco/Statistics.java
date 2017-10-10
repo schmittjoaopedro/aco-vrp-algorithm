@@ -1,5 +1,7 @@
 package schmitt.mmas.aco;
 
+import schmitt.mmas.utils.LogFile;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.HashMap;
@@ -39,16 +41,7 @@ public class Statistics {
             String message = String.format("%05d, %05d, %05d, %05d, %05d,",
                     _globals.iteration, (int) mean(costs), (int) getBest(costs), (int) getWorst(costs), (int) _globals.bestSoFar.getCost());
             System.out.println(message);
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(
-                        "/home/joao/projects/master-degree/mmas-vrp/statistics/" +
-                            _globals.sourceNode.getId() + "->" + _globals.targetNode.getId() + ".txt", true));
-                bw.write(message);
-                bw.newLine();
-                bw.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            LogFile.writeInFile(_globals.sourceNode.getId(), _globals.targetNode.getId(), message);
         }
     }
 
