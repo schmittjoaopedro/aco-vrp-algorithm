@@ -47,11 +47,15 @@ public class Globals {
 
     public Ant restartBestAnt;
 
+    public int lifeTime;
+
+    public Ant nnAnt;
+
     public int uGb;
 
     public Globals() {
         timer = new Timer();
-        numberAnts = 30;
+        numberAnts = 15;
         alpha = 1.0;
         beta = 2.0;
         rho = 0.02;

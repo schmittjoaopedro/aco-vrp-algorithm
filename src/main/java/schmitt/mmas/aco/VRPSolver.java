@@ -38,7 +38,7 @@ public class VRPSolver {
             pheromoneTrailUpdate();
             searchControl();
             _globals.iteration++;
-            statistics.calculateStatistics();
+            //statistics.calculateStatistics();
         }
 
         System.out.println("Finished!");
@@ -66,6 +66,8 @@ public class VRPSolver {
         _globals.restartFoundBestIteration = 0;
         _globals.foundBestIteration = 0;
         _globals.ants[0].nnTour();
+        _globals.nnAnt = _globals.ants[0].clone();
+        _globals.lifeTime = _globals.nnAnt.getRoute().size();
         _globals.trailMax = 1.0 / (_globals.rho * _globals.ants[0].getCost());
         _globals.trailMin = _globals.trailMax / (2.0 * _globals.graph.getNodes().size());
         initPheromoneTrails(_globals.trailMax);
@@ -105,7 +107,7 @@ public class VRPSolver {
             _globals.restartFoundBestIteration = _globals.iteration;
             _globals.trailMax = 1.0 / (_globals.rho * _globals.bestSoFar.getCost());
             _globals.trailMin = _globals.trailMax / (2.0 * _globals.graph.getNodes().size());
-            //System.out.println("Best found = " + _globals.bestSoFar.getCost() + " at iteration " + _globals.iteration);
+            System.out.println("Best found = " + _globals.bestSoFar.getCost() + " at iteration " + _globals.iteration);
             if(this.vrpListener != null) {
                 this.vrpListener.onBestRouteFound(getResultRoute(), getResultCost());
             }
@@ -168,9 +170,9 @@ public class VRPSolver {
     private void searchControl() {
         if(_globals.iteration % 100 == 0) {
             double branchFactor = calculateBranchingFactor();
-            //System.out.println("Branch factor = " + branchFactor + " at iteration " + _globals.iteration);
+            System.out.println("Branch factor = " + branchFactor + " at iteration " + _globals.iteration);
             if(branchFactor < _globals.branchFactor && (_globals.iteration - _globals.restartFoundBestIteration) > 250) {
-                //System.out.println("Restarting System!");
+                System.out.println("Restarting System!");
                 _globals.restartBestAnt = new Ant(_globals);
                 initPheromoneTrails(_globals.trailMax);
                 computeTotalInformation();

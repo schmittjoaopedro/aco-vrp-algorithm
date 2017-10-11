@@ -138,8 +138,8 @@ public class TestGraphTools {
         //43->171
         //103->1980
         //155->2336
-        int fromId = 2336;
-        int toId = 155;
+        int fromId = 553;
+        int toId = 1201;
 
         ClassLoader classLoader = getClass().getClassLoader();
         String jsonFile = classLoader.getResource("joinville.json").getFile().toString();
@@ -147,7 +147,7 @@ public class TestGraphTools {
 
         Visualizer visualizer = new Visualizer(graph);
         visualizer.draw(null);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         //Ant Heuristic
         VRPSolver vrpSolver = new VRPSolver(graph, graph.getNode(fromId), graph.getNode(toId));

@@ -43,8 +43,8 @@ public class Visualizer extends JFrame implements VRPListener {
         this.pack();
         this.setLocationRelativeTo(null);
         this.add(stats, BorderLayout.SOUTH);
-        this.setSize(800, 600);
-        //this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        //this.setSize(800, 600);
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.setVisible(true);
         try {
             Thread.sleep(1000);

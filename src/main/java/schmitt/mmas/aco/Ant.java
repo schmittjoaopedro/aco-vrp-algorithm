@@ -45,6 +45,11 @@ public class Ant {
                     current = nextNode;
                 }
             }
+            if(route.size() > _globals.lifeTime) {
+                this.setRoute(_globals.nnAnt.getRoute());
+                this.setVisited(_globals.nnAnt.getVisited());
+                break;
+            }
         }
         calculateCost();
     }
